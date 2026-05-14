@@ -1,8 +1,8 @@
 package config
 
 import (
+	"path/filepath"
 	"os"
-	"fmt"
 	"encoding/json"
 )
 
@@ -21,49 +21,41 @@ func getConfigFilePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	fileName := fmt.Sprintf("%s%s", homeDir, configFileName)
-	return fileName, nil
+	return filepath.Join(homeDir, configFileName), nil
 }
 
 
-func write(c Config) error {
-	data, err := json.Marshal(c)
+func write(cfg Config) error {
+	fileName, err := getConfigFilePath()
 	if err != nil {
 		return err
 	}
-	//TODO: complete implementation
-
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(fileName, data, 0644)
 }
+
 
 func Read() (Config, error) {
 	fileName, err := getConfigFilePath()
 	if err != nil {
 		return Config{}, err
 	}
-
-	file, err := os.Open(fileName)	
+	data, err := os.ReadFile(fileName)
 	if err != nil {
 		return Config{}, err
 	}
-	defer file.Close()
-
-	data, err := os.ReadRead(data)
-	if err != nil {
+	var cfg Config
+	if err := json.Unmarshal(data, &cfg); err != nil {
 		return Config{}, err
 	}
-
-	var config Config
-	err := json.Unmarshal(data, &config)
-	if err != nil {
-		return Config{}, err
-	}
-	
-	return config, nil
+	return cfg, nil
 }
 
 
-func (c *Config) SetUser(CurrentUsername: string) {
-	c.CurrentUserName = CurrentUsername
-
+func (cfg *Config) SetUser(CurrentUserName string) error {
+	cfg.CurrentUserName = CurrentUserName	
+	return write(*cfg)
 }
