@@ -15,13 +15,13 @@ import (
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Printf("%s", err)
+		fmt.Printf("%s\n", err)
 		os.Exit(1)
 	}
 
 	db, err := sql.Open("postgres", cfg.DBURL)
 	if err != nil {
-		fmt.Printf("%s", err)
+		fmt.Printf("%s\n", err)
 		os.Exit(1)
 	}
 
@@ -31,6 +31,7 @@ func main() {
 	c := InitializeCommandMap()
 	c.register("login", handlerLogin)
 	c.register("register", handlerRegister)
+	c.register("reset", handlerReset)
 
 	if len(os.Args) < 2 {
 		fmt.Printf("no command name passed\n")
@@ -41,7 +42,7 @@ func main() {
 	cmd := command{name: name, args: args}
 	
 	if err = c.run(&s, cmd); err != nil {
-		fmt.Printf("%s", err)
+		fmt.Printf("%s\n", err)
 		os.Exit(1)
 	}
 }

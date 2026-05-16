@@ -28,10 +28,35 @@ type commands struct {
 }
 
 
+// helpers
+
+
 func InitializeCommandMap() commands {
 	all := make(map[string]func(*state, command) error)
 	return commands{all: all}
 }
+
+
+func (c *commands) run(s *state, cmd command) error {
+	callback, ok := c.all[cmd.name]
+	if !ok {
+		return fmt.Errorf("command name '%s' not found\n", cmd.name)
+	}
+
+	err := callback(s, cmd)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+
+func (c *commands) register(name string, f func(*state, command) error) {
+	c.all[name] = f
+}
+
+
+// handlers
 
 
 func handlerLogin(s *state, cmd command) error {
@@ -54,25 +79,6 @@ func handlerLogin(s *state, cmd command) error {
 	}
 	fmt.Printf("Success! Username has been set to %s.\n", username)
 	return nil
-}
-
-
-func (c *commands) run(s *state, cmd command) error {
-	callback, ok := c.all[cmd.name]
-	if !ok {
-		return fmt.Errorf("command name '%s' not found\n", cmd.name)
-	}
-
-	err := callback(s, cmd)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-
-func (c *commands) register(name string, f func(*state, command) error) {
-	c.all[name] = f
 }
 
 
@@ -107,6 +113,21 @@ func handlerRegister(s *state, cmd command) error {
 	}
 	
 	fmt.Printf("Success! New user %s has been registered.\n", username)
+	return nil
+}
+
+
+func handlerReset(s *state, cmd command) error {
+	if len(cmd.args) > 0 {
+		return fmt.Errorf("too many arguments provided for the register command; 0 expected, %d given\n", len(cmd.args))
+	}
+	
+	err := s.db.ResetDb(context.Background())
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Database has been successfully reset.\n")
 	return nil
 }
 

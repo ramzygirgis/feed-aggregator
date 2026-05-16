@@ -13,3 +13,7 @@ RETURNING *;
 SELECT *
 FROM users
 WHERE name = $1;
+
+
+-- name: ResetDb :exec
+DELETE FROM users;
