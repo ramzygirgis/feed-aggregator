@@ -132,4 +132,23 @@ func handlerReset(s *state, cmd command) error {
 }
 
 
+func handlerUsers(s *state, cmd command) error {
+	if len(cmd.args) > 0 {
+		return fmt.Errorf("too many arguments provided for the register command; 0 expected, %d given\n", len(cmd.args))
+	}
 
+	items, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, s := range items {
+		if s == s.cfg.CurrentUserName {
+			fmt.Printf("* %s (current)\n", s)
+		} else {
+			fmt.Printf("* %s\n", s)
+		}
+	}
+
+	return nil
+}

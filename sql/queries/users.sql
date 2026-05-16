@@ -17,3 +17,8 @@ WHERE name = $1;
 
 -- name: ResetDb :exec
 DELETE FROM users;
+
+
+-- name: GetUsers :many
+SELECT name
+FROM users;
