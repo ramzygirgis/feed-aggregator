@@ -1,10 +1,16 @@
 package main
 
+
 import (
 	"fmt"
 	"os"
+	"database/sql"
+	_ "github.com/lib/pq"
 	"github.com/ramzygirgis/feed-aggregator/internal/config"
+	"github.com/ramzygirgis/feed-aggregator/internal/database"
 )
+
+
 
 func main() {
 	cfg, err := config.Read()
@@ -13,9 +19,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	s := state{cfg: &cfg}
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		fmt.Printf("%s", err)
+		os.Exit(1)
+	}
+
+	dbQueries := database.New(db)
+
+	s := state{cfg: &cfg, db: dbQueries}
 	c := InitializeCommandMap()
 	c.register("login", handlerLogin)
+	c.register("register", handlerRegister)
 
 	if len(os.Args) < 2 {
 		fmt.Printf("no command name passed\n")
