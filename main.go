@@ -33,6 +33,7 @@ func main() {
 	c.register("register", handlerRegister)
 	c.register("reset", handlerReset)
 	c.register("users", handlerUsers)
+	c.register("agg", handlerAgg)
 
 	if len(os.Args) < 2 {
 		fmt.Printf("no command name passed\n")

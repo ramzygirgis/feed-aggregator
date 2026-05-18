@@ -152,3 +152,18 @@ func handlerUsers(s *state, cmd command) error {
 
 	return nil
 }
+
+
+func handlerAgg(s *state, cmd command) error {
+	if len(cmd.args) > 0 {
+		return fmt.Errorf("too many arguments provided for the agg command; 0 expected, %d given\n", len(cmd.args))
+	}
+
+	r, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%+v\n", *r)
+	return nil
+}
