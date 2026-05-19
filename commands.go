@@ -167,3 +167,38 @@ func handlerAgg(s *state, cmd command) error {
 	fmt.Printf("%+v\n", *r)
 	return nil
 }
+
+
+func handlerAddfeed(s *state, cmd command) error {
+	if len(cmd.args) < 2 {
+		return fmt.Error("not enough arguments provided for the addfeed command; 2 expected, %d given\n", len(cmd.args))
+	}
+	if len(cmd.args) > 2 {
+		return fmt.Errorf("too many arguments provided for the addfeed command; 2 expected, %d given\n", len(cmd.args))
+	}
+
+	username := s.cfg.CurrentUserName 
+	User, err := s.db.GetUser(context.Background(), username)
+	if err != nil {
+		return err
+	}
+	userid := User.ID
+
+	t := time.Now()
+
+	params := s.db.CreateFeedParams{
+		ID: uuid.New(),
+		CreatedAt: t,
+		UpdatedAt: t,
+		Name: cmd.args[0],
+		Url: cmd.args[1],
+		UserID: userid,
+	}
+
+	_, err := s.db.CreateFeed(context.Background(), params)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
