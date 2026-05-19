@@ -34,6 +34,7 @@ func main() {
 	c.register("reset", handlerReset)
 	c.register("users", handlerUsers)
 	c.register("agg", handlerAgg)
+	c.register("addfeed", handlerAddfeed)
 
 	if len(os.Args) < 2 {
 		fmt.Printf("no command name passed\n")

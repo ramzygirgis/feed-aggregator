@@ -171,7 +171,7 @@ func handlerAgg(s *state, cmd command) error {
 
 func handlerAddfeed(s *state, cmd command) error {
 	if len(cmd.args) < 2 {
-		return fmt.Error("not enough arguments provided for the addfeed command; 2 expected, %d given\n", len(cmd.args))
+		return fmt.Errorf("not enough arguments provided for the addfeed command; 2 expected, %d given\n", len(cmd.args))
 	}
 	if len(cmd.args) > 2 {
 		return fmt.Errorf("too many arguments provided for the addfeed command; 2 expected, %d given\n", len(cmd.args))
@@ -186,7 +186,7 @@ func handlerAddfeed(s *state, cmd command) error {
 
 	t := time.Now()
 
-	params := s.db.CreateFeedParams{
+	params := database.CreateFeedParams{
 		ID: uuid.New(),
 		CreatedAt: t,
 		UpdatedAt: t,
@@ -195,10 +195,11 @@ func handlerAddfeed(s *state, cmd command) error {
 		UserID: userid,
 	}
 
-	_, err := s.db.CreateFeed(context.Background(), params)
+	feed, err := s.db.CreateFeed(context.Background(), params)
 	if err != nil {
 		return err
 	}
-
+	
+	fmt.Printf("%+v\n", feed)
 	return nil
 }
