@@ -217,7 +217,7 @@ func handlerFeeds(s *state, cmd command) error {
 
 	var user database.User
 	for i := 0; i < len(feeds); i++ {
-		fmt.Printf("********* FEED %d *********\n", i)
+		fmt.Printf("********* FEED %d *********\n", i + 1)
 		fmt.Printf("Name: %s\n", feeds[i].Name)
 		fmt.Printf("Url: %s\n", feeds[i].Url)
 		user, err = s.db.GetUserById(context.Background(), feeds[i].UserID)
