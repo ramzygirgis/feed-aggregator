@@ -134,7 +134,7 @@ func handlerReset(s *state, cmd command) error {
 
 func handlerUsers(s *state, cmd command) error {
 	if len(cmd.args) > 0 {
-		return fmt.Errorf("too many arguments provided for the register command; 0 expected, %d given\n", len(cmd.args))
+		return fmt.Errorf("too many arguments provided for the users command; 0 expected, %d given\n", len(cmd.args))
 	}
 
 	items, err := s.db.GetUsers(context.Background())
@@ -203,3 +203,31 @@ func handlerAddfeed(s *state, cmd command) error {
 	fmt.Printf("%+v\n", feed)
 	return nil
 }
+
+
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.args) > 0 {
+		return fmt.Errorf("too many arguments provided for the feeds command; 0 expected, %d given\n", len(cmd.args))
+	}
+
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+
+	var user database.User
+	for i := 0; i < len(feeds); i++ {
+		fmt.Printf("********* FEED %d *********\n", i)
+		fmt.Printf("Name: %s\n", feeds[i].Name)
+		fmt.Printf("Url: %s\n", feeds[i].Url)
+		user, err = s.db.GetUserById(context.Background(), feeds[i].UserID)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("UserName: %s\n", user.Name)
+	}
+	fmt.Println("********************")
+
+	return nil
+}
+
