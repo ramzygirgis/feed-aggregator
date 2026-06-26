@@ -6,8 +6,7 @@ WITH inserted_feed_follow AS (
   $2,
   $3,
   $4,
-  $5,
-  $6
+  $5
   )
   RETURNING *, GetUserById(user_id), GetFeedNameById(feed_id)
 )
