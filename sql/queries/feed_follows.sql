@@ -23,3 +23,6 @@ ON feeds.id = feed_id;
 
 
 -- name: GetFeedFollowsForUser :many
+SELECT * -- potentially select less later
+FROM feed_follows
+WHERE user_id = $1; 

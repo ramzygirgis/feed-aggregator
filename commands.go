@@ -227,7 +227,40 @@ func handlerFeeds(s *state, cmd command) error {
 		fmt.Printf("UserName: %s\n", user.Name)
 	}
 	fmt.Println("********************")
-
+	
 	return nil
 }
 
+
+func handlerFollow(s *state, cmd command) error {
+	if len(cmd.args) < 1 {
+		return fmt.Errorf("not enough arguments provided for the follow command; 1 expected, %d given\n", len(cmd.args))
+	}
+	if len(cmd.args) > 2 {
+		return fmt.Errorf("too many arguments provided for the follow command; 1 expected, %d given\n", len(cmd.args))
+	}
+	feedURL := cmd.args[0]
+	username := s.cfg.CurrentUserName
+	Feed, err := s.db.GetFeedByURL(context.Background(), feedURL)
+	if err != nil {
+		return err
+	}
+
+	User, err := s.db.GetUser(context.Background(), username)
+	if err != nil {
+		return err
+	}
+
+	t := time.Now()
+	params := database.CreateFeedFollowParams{ID: uuid.New(), CreatedAt: t, UpdatedAt: t, UserID: User.ID, FeedID: Feed.ID}
+
+	_, err = s.db.CreateFeedFollow(context.Background(), params) // hit NewRow with an _ if not useful
+	if err != nil {
+		return err
+	}
+	fmt.Printf("********* FEED FOLLOW *********\n")
+	fmt.Printf("Feed Name: %s\n", Feed.Name)
+	fmt.Printf("Username: %s\n", username)
+	
+	return nil
+}
