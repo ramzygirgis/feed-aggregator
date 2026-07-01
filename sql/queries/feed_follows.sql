@@ -1,4 +1,4 @@
--- name: CreateFeedFollow :many
+-- name: CreateFeedFollow :one
 WITH inserted_feed_follow AS (
   INSERT INTO feed_follows (id, created_at, updated_at, user_id, feed_id)
   VALUES (
@@ -8,7 +8,7 @@ WITH inserted_feed_follow AS (
   $4,
   $5
   )
-  RETURNING *, GetUserById(user_id), GetFeedNameById(feed_id)
+  RETURNING *
 )
 SELECT
   inserted_feed_follow.*,
