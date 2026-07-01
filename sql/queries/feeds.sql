@@ -19,3 +19,8 @@ FROM feeds;
 SELECT *
 FROM feeds
 WHERE url = $1;
+
+-- name: GetFeed :one
+SELECT *
+FROM feeds
+WHERE id = $1;

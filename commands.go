@@ -274,11 +274,12 @@ func handlerFollowing(s *state, cmd command) error {
 	if len(cmd.args) != 0 {
 		return fmt.Errorf("too many arguments provided for the following command; 0 expected, %d given\n", len(cmd.args))
 	}
-	currentUserID, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	currentUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
 		return err
 	}
-	follows, err := s.db.GetFeedFollowsForUser(context.Background(), currentUserID)
+
+	follows, err := s.db.GetFeedFollowsForUser(context.Background(), currentUser.ID)
 	if err != nil {
 		return err
 	}
@@ -289,9 +290,10 @@ func handlerFollowing(s *state, cmd command) error {
 		fmt.Printf("%s follows no feeds.\n", s.cfg.CurrentUserName)
 		return nil
 	}
-
+	var cur_feed database.Feed
 	for i := 0; i < len(follows); i++ {
-		fmt.Printf("%s\n", follows[i].FeedName)
+		cur_feed, err = s.db.GetFeed(context.Background(), follows[i].FeedID)
+		fmt.Printf("- %s\n", cur_feed.Name)
 	}
 	return nil
 
