@@ -195,12 +195,16 @@ func handlerAddfeed(s *state, cmd command) error {
 		UserID: userid,
 	}
 
-	feed, err := s.db.CreateFeed(context.Background(), params)
+	_, err = s.db.CreateFeed(context.Background(), params)
 	if err != nil {
 		return err
 	}
 	
-	fmt.Printf("%+v\n", feed)
+	fmt.Printf("Feed Name: %s\n", cmd.args[0])
+	fmt.Printf("Url: %s\n", cmd.args[1])
+	fmt.Printf("UserID: %s\n", userid)
+
+
 	return nil
 }
 
@@ -263,4 +267,32 @@ func handlerFollow(s *state, cmd command) error {
 	fmt.Printf("Username: %s\n", username)
 	
 	return nil
+}
+
+
+func handlerFollowing(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("too many arguments provided for the following command; 0 expected, %d given\n", len(cmd.args))
+	}
+	currentUserID, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+	follows, err := s.db.GetFeedFollowsForUser(context.Background(), currentUserID)
+	if err != nil {
+		return err
+	}
+	
+	fmt.Printf("****** FEED FOLLOWS FOR %s ******\n", s.cfg.CurrentUserName)
+
+	if len(follows) == 0 {
+		fmt.Printf("%s follows no feeds.\n", s.cfg.CurrentUserName)
+		return nil
+	}
+
+	for i := 0; i < len(follows); i++ {
+		fmt.Printf("%s\n", follows[i].FeedName)
+	}
+	return nil
+
 }
