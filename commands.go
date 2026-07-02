@@ -298,5 +298,31 @@ func handlerFollowing(s *state, cmd command, User database.User) error {
 		fmt.Printf("- %s\n", cur_feed.Name)
 	}
 	return nil
+}
 
+
+func handlerUnfollow(s *state, cmd command, User database.User) error {
+	if len(cmd.args) == 0 {
+		return fmt.Errorf("not enough arguments provided for the unfollow command; 1 expected, 0 given\n")
+	}
+	if len(cmd.args) > 1 {
+		return fmt.Errorf("too many arguments provided for the unfollow command; 1 expected, %d given\n", len(cmd.args))
+	}
+	
+	url := cmd.args[0]
+	Feed, err := s.db.GetFeedByURL(context.Background(), url)
+	if err != nil {
+		return err
+	}
+
+	params := database.DeleteFeedFollowParams{
+		UserID: User.ID,
+		FeedID: Feed.ID,
+	}
+	err = s.db.DeleteFeedFollow(context.Background(), params)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s has succesfully unfollowed %s\n", User.Name, Feed.Name)
+	return nil
 }
