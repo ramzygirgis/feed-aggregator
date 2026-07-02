@@ -154,17 +154,53 @@ func handlerUsers(s *state, cmd command) error {
 }
 
 
-func handlerAgg(s *state, cmd command) error {
-	if len(cmd.args) > 0 {
-		return fmt.Errorf("too many arguments provided for the agg command; 0 expected, %d given\n", len(cmd.args))
-	}
-
-	r, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+func scrapeFeeds(s *state) error {
+	nextFeed, err := s.db.GetNextFeedToFetch(context.Background())
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%+v\n", *r)
+	err = s.db.MarkFeedFetched(context.Background(), nextFeed.ID)
+	if err != nil {
+		return err
+	}
+
+	RSSData, err := fetchFeed(context.Background(), nextFeed.Url)
+	items := RSSData.Channel.Item
+	for i := 0; i < len(items); i++ {
+		fmt.Printf("***** Item %d *****\n", i+1)
+		fmt.Printf("%s\n", items[i].Title)
+	}
+
+	return nil
+}
+
+
+func handlerAgg(s *state, cmd command) error {
+	timeBetweenRequests, err := time.ParseDuration("300ms")
+	if err != nil {
+		return err
+	}
+	if len(cmd.args) == 1 {
+		timeBetweenRequests, err = time.ParseDuration(cmd.args[0])
+		if err != nil {
+			return err
+		}
+	}
+	if len(cmd.args) > 1 {
+		return fmt.Errorf("too many arguments provided for the agg command; 0/1 expected, %d given\n", len(cmd.args))
+	}
+
+	duration_string := timeBetweenRequests.String()
+	fmt.Printf("Collecting feeds every %s\n", duration_string)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		err = scrapeFeeds(s)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
