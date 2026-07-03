@@ -1,4 +1,11 @@
-# feed-aggregator
+edit my readme file to describe the project; Built a Go CLI that aggregates RSS feeds into PostgreSQL with a
+  long-running worker that polls subscribed feeds
+  on a configurable interval and deduplicates posts on URL.
+  • Designed a normalized Postgres schema (users, feeds, feed follows, posts) with goose migrations and
+  sqlc-generated type-safe queries, including joins for per-user feed timelines.
+  • Built a command-dispatch CLI with middleware-wrapped authenticated handlers over a JSON-backed config layer.
+  the above describes the project a little, but feel free to go thru the codebase and explain all the functions.
+  make sure to talk thru download, tiny details abt psql and postgres to get the db running, and all the commands# feed-aggregator
 
 A Go CLI that aggregates RSS feeds into PostgreSQL. A long-running worker polls all subscribed feeds on a configurable interval and deduplicates posts by URL. Built with a normalized Postgres schema, goose migrations, sqlc-generated type-safe queries, and a command-dispatch pattern with middleware-wrapped authenticated handlers over a JSON config layer.
 
@@ -19,8 +26,8 @@ A Go CLI that aggregates RSS feeds into PostgreSQL. A long-running worker polls 
 
 - [Go](https://go.dev/dl/) 1.21+
 - [PostgreSQL](https://www.postgresql.org/download/) 14+
-- [goose](https://github.com/pressly/goose) — for running migrations
-- [sqlc](https://sqlc.dev/) — only needed if you modify `.sql` query files
+- [goose](https://github.com/pressly/goose) (for running migrations)
+- [sqlc](https://sqlc.dev/) (only needed if you modify `.sql` query files)
 
 ---
 
