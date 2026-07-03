@@ -7,6 +7,7 @@ import (
 	"context"
   "database/sql"
 	"strings"
+	"strconv"
 	"github.com/ramzygirgis/feed-aggregator/internal/config"
 	"github.com/ramzygirgis/feed-aggregator/internal/database"
 	"github.com/google/uuid"
@@ -412,3 +413,36 @@ func handlerUnfollow(s *state, cmd command, User database.User) error {
 	fmt.Printf("%s has succesfully unfollowed %s\n", User.Name, Feed.Name)
 	return nil
 }
+
+
+func handlerBrowse(s *state, cmd command, User database.User) error {
+	limit := int32(2)
+	var err error
+	if len(cmd.args) == 1 {
+		parsed, err := strconv.ParseInt(cmd.args[0], 10, 32)
+		limit = int32(parsed)
+		if err != nil {
+			return err
+		}
+	}
+	if len(cmd.args) > 1 {
+		return fmt.Errorf("too many arguments provided for the unfollow command; 1 expected, %d given\n", len(cmd.args))
+	}
+	
+	getPostsParams := database.GetPostsParams{
+		UserID: User.ID,
+		Limit: limit,
+	}
+	posts, err := s.db.GetPosts(context.Background(), getPostsParams)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(posts); i++ {
+		fmt.Printf("%v\n", posts[i])
+	}
+
+	return nil
+}
+
+
