@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"time"
 	"context"
-  "github.com/ramzygirgis/feed-aggregator/internal/config"
+  "database/sql"
+	"strings"
+	"github.com/ramzygirgis/feed-aggregator/internal/config"
 	"github.com/ramzygirgis/feed-aggregator/internal/database"
 	"github.com/google/uuid"
 )
@@ -167,7 +169,55 @@ func scrapeFeeds(s *state) error {
 
 	RSSData, err := fetchFeed(context.Background(), nextFeed.Url)
 	items := RSSData.Channel.Item
+	var t time.Time
+	var params database.CreatePostParams
+	var nullDesc sql.NullString
+	var nullTime sql.NullTime
 	for i := 0; i < len(items); i++ {
+
+		if items[i].Link == "" {
+			continue
+		}
+
+		t, err = time.Parse(time.RFC1123Z, items[i].PubDate)
+		if err != nil {
+			t, err = time.Parse(time.RFC3339, items[i].PubDate)
+			if err != nil{
+				fmt.Printf("%s\n", err)
+				t = time.Time{}
+			}
+		}
+
+		nullDesc = sql.NullString{
+			String: items[i].Description,
+			Valid:  (items[i].Description != ""),
+		}
+
+		nullTime = sql.NullTime{
+			Time: t,
+			Valid: (t != time.Time{}),
+		}
+
+		params = database.CreatePostParams{
+			ID: uuid.New(),
+			CreatedAt: nextFeed.CreatedAt,
+			UpdatedAt: nextFeed.UpdatedAt,
+			Title: items[i].Title,
+			Url: items[i].Link,
+			Description: nullDesc,
+			PublishedAt: nullTime,
+			FeedID: nextFeed.ID,
+		}
+
+		_, err = s.db.CreatePost(context.Background(), params)
+		if err != nil {
+			if strings.Contains(err.Error(), "unique") {
+				continue
+			}
+			fmt.Printf("%s\n", err.Error())
+			return err
+		}	
+
 		fmt.Printf("***** Item %d *****\n", i+1)
 		fmt.Printf("%s\n", items[i].Title)
 	}
