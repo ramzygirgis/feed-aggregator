@@ -1,4 +1,4 @@
-Built a Go CLI that aggregates RSS feeds into PostgreSQL with a
+This is a Go CLI that aggregates RSS feeds into PostgreSQL with a
   long-running worker that polls subscribed feeds
   on a configurable interval and deduplicates posts on URL.
   • Designed a normalized Postgres schema (users, feeds, feed follows, posts) with goose migrations and
